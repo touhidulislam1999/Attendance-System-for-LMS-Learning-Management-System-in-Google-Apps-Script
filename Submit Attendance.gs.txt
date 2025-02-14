@@ -3,9 +3,9 @@ function submitAttendanceData(date,attendanceData) {
   let sheet;
   var userProperties = PropertiesService.getUserProperties();
   if(userProperties.getProperty('user')==='a')
-    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Physics");
+    sheet = SpreadsheetApp.openById("Your Sheet ID").getSheetByName("Your Sheet Name"); // Provide Sheet ID & Sheet Name
   else
-    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Biology");
+    sheet = SpreadsheetApp.openById("Your Sheet ID").getSheetByName("Your Sheet Name"); // Provide Sheet ID & Sheet Name
 
   var row=2;
   var j;
