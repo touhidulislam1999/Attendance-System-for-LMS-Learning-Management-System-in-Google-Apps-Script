@@ -1,0 +1,35 @@
+function submitAttendanceData(date,attendanceData) {
+  //console.log(date,attendanceData[0][0]);
+  let sheet;
+  var userProperties = PropertiesService.getUserProperties();
+  if(userProperties.getProperty('user')==='a')
+    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Physics");
+  else
+    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Biology");
+
+  var row=2;
+  var j;
+  for(var i=1;i<sheet.getLastColumn();i++){
+    if(sheet.getRange(2,i).getValue()===""||sheet.getRange(2,i).getValue()===null){
+      sheet.getRange(2,i).setValue(date).setHorizontalAlignment("center").setVerticalAlignment("middle"); // Center vertically;
+      j=i;
+      break;
+    }
+  }
+  var i=3;
+  for(var x=0;x<attendanceData.length;x++){
+    console.log(sheet.getRange(i,1).getValue(),attendanceData[x][0]);
+    if(sheet.getRange(i,1).getValue() == attendanceData[x][0]){
+      if(attendanceData[x][2]=='Present'){
+        sheet.getRange(i,j).setValue('P');
+        sheet.getRange(i,j).setBackground('green').setHorizontalAlignment("center").setVerticalAlignment("middle");;
+      }
+      else{
+        sheet.getRange(i,j).setValue('A');
+        sheet.getRange(i,j).setBackground('red').setHorizontalAlignment("center").setVerticalAlignment("middle");;
+      }
+      //console.log(attendanceData[x][2]);
+      i++;
+    }
+  }  
+}

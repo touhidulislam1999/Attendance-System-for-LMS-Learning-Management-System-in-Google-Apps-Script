@@ -1,0 +1,20 @@
+// Function to get data from Google Sheets
+function getAttendanceData() {
+  let sheet;
+  let classs;
+  var userProperties = PropertiesService.getUserProperties();
+  if(userProperties.getProperty('user')==='a'){
+    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Physics");
+    classs='Physics';
+  }
+  else{
+    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Biology");
+    classs='Biology';
+  }
+  const data = sheet.getRange(3, 1, sheet.getLastRow() - 2, 2).getValues(); // Assuming first row has headers
+  return {
+    cLASS: classs,
+    user: userProperties.getProperty('user'),
+    attendance: data.map(row => ({ rollNumber: row[0], studentName: row[1] }))
+  };
+}

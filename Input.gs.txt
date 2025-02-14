@@ -1,0 +1,6 @@
+function getUserInput(user,pass) {
+  return {
+    User: user,
+    Password: pass,
+  };
+}

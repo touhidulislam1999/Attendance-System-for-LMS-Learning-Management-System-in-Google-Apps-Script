@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Sheet</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    header .date-picker {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+    }
+    header .date-picker label {
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    header .date-picker input {
+      padding: 5px;
+      font-size: 14px;
+    }
+    .attendance-container {
+      margin: 20px auto;
+      width: 90%;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .submit-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .submit-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    .submit-container button:enabled {
+      cursor: pointer;
+      opacity: 1;
+    }
+    #logout-button {
+      background-color: #dc3545; /* Red color */
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 14px;
+    }
+
+    #logout-button:hover {
+      background-color: #c82333;
+    }
+
+    /* Loader Styling */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      flex-direction: column;
+    }
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 8px solid #3498db;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loader-text {
+      margin-top: 10px;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+    }
+  </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Attendance Sheet</h1>
+        <h2 id="user-info" style="margin: 5px 0;">Loading...</h2>
+      </div>
+      <div class="date-picker">
+        <label for="date">Date:</label>
+        <input 
+          type="date" 
+          id="date" 
+          onchange="checkFormCompletion()">
+          <button
+            id="logout-button"
+            onclick="logout()">Logout</button>
+      </div>
+    </header>
+    <div class="attendance-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody id="attendance-body"></tbody>
+      </table>
+    </div>
+    <div class="submit-container">
+      <button id="submit-button" disabled onclick="submitAttendance()">Submit</button>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader-overlay" id="loaderOverlay">
+      <div class="loader"></div>
+      <div class="loader-text">Submitting Attendance...</div>
+    </div>
+    <script>
+
+      function logout() {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "Do you want to log out?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, Logout",
+          cancelButtonText: "Cancel"
+        }).then((result) => {
+          if (result.isConfirmed)
+            logout();
+        });
+      }s
+
+      function logout(){
+        location.reload();
+      }
+
+      // Fetch data from Google Apps Script
+      let uSer,cLass;
+      async function fetchAttendanceData() {
+        google.script.run.withSuccessHandler(({ cLASS, user, attendance }) => {
+          cLass = cLASS;
+          uSer = user;
+          
+          // Update header dynamically
+          document.getElementById("user-info").innerText = `Login As: ${uSer} || Class: ${cLass}`;
+
+          renderTable(attendance);
+        }).getAttendanceData();
+      }
+
+
+      // Render the attendance table
+      function renderTable(data) {
+        const tbody = document.getElementById('attendance-body');
+        tbody.innerHTML = ''; // Clear existing data
+
+        data.forEach((row, index) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML =` 
+            <td>${row.rollNumber}</td>
+            <td>${row.studentName}</td>
+            <td>
+              <input 
+                type="radio" 
+                name="attendance-${index}" 
+                value="Present" 
+                onchange="checkFormCompletion()"> 
+                Present
+              <input 
+                type="radio" 
+                name="attendance-${index}" 
+                value="Absent" 
+                onchange="checkFormCompletion()"> 
+                Absent
+            </td>
+          `
+          tbody.appendChild(tr);
+        });
+
+        checkFormCompletion(); // Check if the form can be enabled initially
+      }
+
+      // Check if the form is complete
+      function checkFormCompletion() {
+        const date = document.getElementById('date').value; 
+        const allAttendanceRows = document.querySelectorAll('tbody tr');
+        let allMarked = true;
+
+        allAttendanceRows.forEach((row, index) => {
+          const radios = document.querySelectorAll(`input[name="attendance-${index}"]`);
+          const isMarked = Array.from(radios).some((radio) => radio.checked);
+          if (!isMarked) {
+            allMarked = false;
+          }
+        });
+
+        document.getElementById('submit-button').disabled = !(date && allMarked);
+      }
+
+      // Submit attendance with loading animation
+      function submitAttendance() {
+        const date = document.getElementById('date').value;
+        if (!date) {
+          Swal.fire("Warning!","Please select a date before submitting.","Warning!");
+          //alert("Please select a date before submitting.");
+          return;
+        }
+
+        const attendanceData = [];
+        const allAttendanceRows = document.querySelectorAll('tbody tr');
+
+        allAttendanceRows.forEach((row, index) => {
+          const rollNumber = row.children[0].innerText;
+          const studentName = row.children[1].innerText;
+          const radios = document.querySelectorAll(`input[name="attendance-${index}"]`);
+          const selectedAttendance = Array.from(radios).find((radio) => radio.checked)?.value;
+
+          /*if (!selectedAttendance) {
+            alert(Please mark attendance for ${studentName});
+            return;
+          }
+
+          if (!selectedAttendance) {
+            Swal.fire("Warning!", `Please mark attendance for ${studentName}`, "Warning!");
+            return;
+          }*/
+
+          attendanceData.push([rollNumber, studentName, selectedAttendance]);
+        });
+
+        // Show loader before submitting
+        document.getElementById("loaderOverlay").style.display = "flex";
+        
+        Swal.fire({
+          title: "Are you sure?",
+          text: "Do you want to submit attendance?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+          cancelButtonText: "No",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            google.script.run.withSuccessHandler(() => {
+              document.getElementById("loaderOverlay").style.display = "none"; // Hide loader
+              Swal.fire("Success", "Attendance submitted successfully!", "success");
+              // Clear inputs after submission
+              document.getElementById('date').value = "";
+              allAttendanceRows.forEach((row, index) => {
+                const radios = document.querySelectorAll(`input[name="attendance-${index}"]`);
+                radios.forEach((radio) => radio.checked = false);
+              });
+
+              // Disable submit button after clearing
+              document.getElementById('submit-button').disabled = true;
+
+            }).submitAttendanceData(date, attendanceData);
+          }
+        });
+      }
+
+      window.onload = fetchAttendanceData;
+
+        // Send data to Google Apps Script
+        /*google.script.run
+          .withSuccessHandler(() => {
+            document.getElementById("loaderOverlay").style.display = "none"; // Hide loader
+            alert('Attendance submitted successfully!');
+
+            // Clear inputs after submission
+            document.getElementById('date').value = "";
+            allAttendanceRows.forEach((row, index) => {
+              const radios = document.querySelectorAll(`input[name="attendance-${index}"]`);
+              radios.forEach((radio) => radio.checked = false);
+            });
+
+            // Disable submit button after clearing
+            document.getElementById('submit-button').disabled = true;
+
+          })
+          .withFailureHandler(() => {
+            document.getElementById("loaderOverlay").style.display = "none"; // Hide loader
+            alert('Error submitting attendance. Please try again.');
+          })
+          .submitAttendanceData(date, attendanceData);
+      }
+
+      // Initialize the page
+      window.onload = fetchAttendanceData;*/
+    </script>
+  </body>
+</html>

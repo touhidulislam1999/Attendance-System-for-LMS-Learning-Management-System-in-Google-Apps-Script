@@ -1,0 +1,7 @@
+function SavedUsers() {
+  const User = UserClass();  // Get User class
+  return [
+    new User('a','123'),  // Properly instantiate User objects
+    new User('b','123')
+  ];
+}

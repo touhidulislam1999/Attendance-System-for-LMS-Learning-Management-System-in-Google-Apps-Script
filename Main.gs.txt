@@ -1,0 +1,15 @@
+function doGet(e) {
+  return HtmlService.createHtmlOutputFromFile('Login Page');
+}
+
+function login(username,password){
+  const User=UserClass();
+  const Saved=SavedUsers();
+  const Input=getUserInput(username,password);
+  var userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty('user',username);
+  if(Verify_User(Input,Saved))
+    return HtmlService.createHtmlOutputFromFile('Attendance Sheet.html').getContent();
+  else
+    return false;
+}

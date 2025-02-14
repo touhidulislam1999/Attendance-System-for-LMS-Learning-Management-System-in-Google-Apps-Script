@@ -1,0 +1,14 @@
+// Class Definition
+function UserClass() {
+  return class User {
+    constructor(user, pass) {
+      this.User = user;
+      this.Pass = pass;
+    }
+
+    // Static method to verify user credentials
+    static verifyUser(inputUser, inputPass, savedUsers) {
+      return savedUsers.some((u) => u.User === inputUser && u.Pass === inputPass);
+    }
+  };
+}
