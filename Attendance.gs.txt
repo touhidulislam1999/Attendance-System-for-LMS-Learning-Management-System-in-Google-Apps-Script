@@ -4,11 +4,11 @@ function getAttendanceData() {
   let classs;
   var userProperties = PropertiesService.getUserProperties();
   if(userProperties.getProperty('user')==='a'){
-    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Physics");
+    sheet = SpreadsheetApp.openById("Your Sheet ID").getSheetByName("Your Sheet Name"); // Provide Sheet ID & Sheet Name
     classs='Physics';
   }
   else{
-    sheet = SpreadsheetApp.openById("1TmV9FV0-Cza_mBSlENkjvLuDadVQ_DUIhyZSjIvYCys").getSheetByName("Biology");
+    sheet = SpreadsheetApp.openById("Your Sheet ID").getSheetByName("Your Sheet Name"); // Provide Sheet ID & Sheet Name
     classs='Biology';
   }
   const data = sheet.getRange(3, 1, sheet.getLastRow() - 2, 2).getValues(); // Assuming first row has headers
